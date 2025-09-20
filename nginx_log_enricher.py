@@ -133,8 +133,16 @@ def main():
     except Exception as e:
         print(f"Error while reading {args.in_path}: {e}", file=sys.stderr)
         sys.exit(1)
-
+    
+        
+        
     print("--- End of file content ---")
+    
+    
+    
+    # enrich parsed records with User-Agent fields
+    enricher = UserAgentEnricher()                  
+    records = [enricher.enrich(e) for e in records] 
     
     # Try to write to the output file
     try:
