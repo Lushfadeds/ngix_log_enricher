@@ -1,6 +1,29 @@
 import argparse
 import json
+import re
 import sys
+from typing import Dict, Optional
+
+class NginxLogParser:
+    """Parser for Nginx access logs in combined format."""
+
+    def __init__(self):
+        # Regex for Nginx combined log format
+        self.log_pattern = re.compile(
+            r'(?P<remote_addr>\S+) - (?P<remote_user>\S+) \[(?P<time_local>[^\]]+)\] '
+            r'"(?P<request>[^"]*)" (?P<status>\d+) (?P<body_bytes_sent>\S+) '
+            r'"(?P<http_referer>[^"]*)" "(?P<http_user_agent>[^"]*)"'
+        )
+
+    def parse_line(self, line: str) -> Optional[Dict[str, Any]]:
+        """Parse a single log line into a dictionary of fields."""
+        line = line.strip()
+        if not line:
+            return None
+
+        match = self.log_pattern.match(line)
+        return match.groupdict() if match else None
+
 def main():
     parser = argparse.ArgumentParser(description="Nginx log parser and data enricher")
     parser.add_argument("--in", dest="in_path", required=True, help="Input Nginx log file")
