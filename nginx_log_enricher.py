@@ -2,9 +2,15 @@ import argparse
 import json
 import re
 import sys
+import logging
 from typing import Any, Dict, Optional
 from datetime import datetime
 from user_agents import parse as parse_user_agent
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(levelname)s: %(message)s"
+)
 
 class NginxLogParser:
     """Parser for Nginx access logs in combined format."""
@@ -96,7 +102,7 @@ class UserAgentEnricher:
             entry["ua_is_pc"] = user_agent.is_pc
             entry["ua_is_bot"] = user_agent.is_bot
         except Exception as e:
-            print(f"Warning: Failed to parse User-Agent '{ua_string}': {e}", file=sys.stderr)
+            logging.warning(f"Failed to parse User-Agent '{ua_string}': {e}")
             entry.update({
                 "ua_browser": None,
                 "ua_browser_version": None,
@@ -118,9 +124,9 @@ def main():
     parser.add_argument("--out", dest="out_path", required=True, help="Output JSON file")
     args = parser.parse_args()
 
-    print(f"Reading from {args.in_path}")
-    print(f"Will write to {args.out_path}")
-    
+    logging.info(f"Reading from {args.in_path}")
+    logging.info(f"Will write to {args.out_path}")
+
     # Read lines into a list of dicts
     log_parser = NginxLogParser()
     records: list[dict[str, Any]] = []
@@ -136,20 +142,19 @@ def main():
                     records.append(entry)
                 else:
                     skipped += 1
-                    print(f"Warning: skipped line {line_num}", file=sys.stderr)
+                    logging.warning(f"Skipped line {line_num}")
     except FileNotFoundError:
-        print(f"Error: Input file not found -> {args.in_path}", file=sys.stderr)
+        logging.error(f"Input file not found -> {args.in_path}")
         sys.exit(1)
     except Exception as e:
-        print(f"Error while reading {args.in_path}: {e}", file=sys.stderr)
+        logging.error(f"Error while reading {args.in_path}: {e}")
         sys.exit(1)
     
-        
-        
-    print("--- End of file content ---")
-    
-    
-    
+
+
+    logging.info("--- End of file content ---")
+
+
     # enrich parsed records with User-Agent fields
     enricher = UserAgentEnricher()                  
     records = [enricher.enrich(e) for e in records] 
@@ -159,12 +164,12 @@ def main():
         with open(args.out_path, "w", encoding="utf-8") as out:
             json.dump(records, out, indent=2)
     except Exception as e:
-        print(f"Error while writing to {args.out_path}: {e}", file=sys.stderr)
+        logging.error(f"Error while writing to {args.out_path}: {e}")
         sys.exit(1)
 
-    print(f"Processed {len(records)} entries, skipped {skipped} invalid lines.")
-    print(f"Output written to {args.out_path}")
-    
+    logging.info(f"Processed {len(records)} entries, skipped {skipped} invalid lines.")
+    logging.info(f"Output written to {args.out_path}")
+
 
 if __name__ == "__main__":
     main()
