@@ -159,7 +159,7 @@ def main():
         print(f"Error while writing to {args.out_path}: {e}", file=sys.stderr)
         sys.exit(1)
 
-    print(f"Processed {len(records)} lines")
+    print(f"Processed {len(records)} entries, skipped {skipped} invalid lines.")
     print(f"Output written to {args.out_path}")
     
 
