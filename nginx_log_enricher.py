@@ -1,4 +1,5 @@
 import argparse
+import json
 
 def main():
     parser = argparse.ArgumentParser(description="Nginx log parser and data enricher")
@@ -8,11 +9,15 @@ def main():
 
     print(f"Reading from {args.in_path}")
     print(f"Will write to {args.out_path}")
+    
+    # Read lines into a list of dicts
+    records = []
     with open(args.in_path, "r", encoding="utf-8") as f:
         for line in f:
-            print(line.strip())
+            records.append({"raw_line": line.strip()})
 
     print("--- End of file content ---")
+    
 
 if __name__ == "__main__":
     main()
