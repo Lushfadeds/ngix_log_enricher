@@ -123,7 +123,8 @@ def main():
     
     # Read lines into a list of dicts
     log_parser = NginxLogParser()
-    records = []
+    records: list[dict[str, Any]] = []
+
     skipped = 0
     
     # Try to read the input file
