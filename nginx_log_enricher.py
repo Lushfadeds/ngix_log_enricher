@@ -8,6 +8,11 @@ def main():
 
     print(f"Reading from {args.in_path}")
     print(f"Will write to {args.out_path}")
+    with open(args.in_path, "r", encoding="utf-8") as f:
+        for line in f:
+            print(line.strip())
+
+    print("--- End of file content ---")
 
 if __name__ == "__main__":
     main()
