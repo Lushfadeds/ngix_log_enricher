@@ -124,6 +124,7 @@ def main():
     # Read lines into a list of dicts
     log_parser = NginxLogParser()
     records = []
+    skipped = 0
     # Try to read the input file
     try:
         with open(args.in_path, "r", encoding="utf-8") as f:
@@ -131,6 +132,8 @@ def main():
                 entry = log_parser.parse_line(line)
                 if entry:
                     records.append(entry)
+                else:
+                    skipped += 1
     except FileNotFoundError:
         print(f"Error: Input file not found -> {args.in_path}", file=sys.stderr)
         sys.exit(1)
