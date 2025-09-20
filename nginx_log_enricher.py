@@ -4,6 +4,7 @@ import re
 import sys
 from typing import Any, Dict, Optional
 from datetime import datetime
+from user_agents import parse as parse_user_agent
 
 class NginxLogParser:
     """Parser for Nginx access logs in combined format."""
@@ -56,6 +57,37 @@ class NginxLogParser:
 
         return entry
 
+class UserAgentEnricher:
+    """Enrich log entries with user agent details."""
+
+    def enrich(self, entry: Dict[str, Any]) -> Dict[str, Any]:
+        """Add user agent details to the log entry."""
+        ua_string = entry.get("http_user_agent", "")
+        if ua_string:
+            user_agent = parse_user_agent(ua_string)
+            entry["ua_browser"] = user_agent.browser.family
+            entry["ua_browser_version"] = user_agent.browser.version_string
+            entry["ua_os"] = user_agent.os.family
+            entry["ua_os_version"] = user_agent.os.version_string
+            entry["ua_device"] = user_agent.device.family
+            entry["ua_is_mobile"] = user_agent.is_mobile
+            entry["ua_is_tablet"] = user_agent.is_tablet
+            entry["ua_is_pc"] = user_agent.is_pc
+            entry["ua_is_bot"] = user_agent.is_bot
+        else:
+            entry.update({
+                "ua_browser": None,
+                "ua_browser_version": None,
+                "ua_os": None,
+                "ua_os_version": None,
+                "ua_device": None,
+                "ua_is_mobile": False,
+                "ua_is_tablet": False,
+                "ua_is_pc": False,
+                "ua_is_bot": False,
+            })
+        return entry
+    
 def main():
     parser = argparse.ArgumentParser(description="Nginx log parser and data enricher")
     parser.add_argument("--in", dest="in_path", required=True, help="Input Nginx log file")
