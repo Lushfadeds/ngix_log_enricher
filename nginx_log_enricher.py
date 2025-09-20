@@ -3,6 +3,7 @@ import json
 import re
 import sys
 from typing import Any, Dict, Optional
+from datetime import datetime
 
 class NginxLogParser:
     """Parser for Nginx access logs in combined format."""
@@ -46,6 +47,12 @@ class NginxLogParser:
             entry["method"], entry["path"], entry["protocol"] = request_parts
         else:
             entry["method"], entry["path"], entry["protocol"] = "", "", ""
+        
+        # Parse time_local into a standard format
+        try:
+            entry["time_local"] = datetime.strptime(entry["time_local"], "%d/%b/%Y:%H:%M:%S %z").isoformat()
+        except (ValueError, KeyError):
+            entry["time_local"] = None
 
         return entry
 
