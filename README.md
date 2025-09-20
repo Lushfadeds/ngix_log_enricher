@@ -59,7 +59,7 @@ samples/enriched.json
 ]
 ```
 
-##📝 Assumptions
+## 📝 Assumptions
 
 - Input log format = Nginx combined log format
 
