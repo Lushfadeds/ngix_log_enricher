@@ -2,7 +2,7 @@ import argparse
 import json
 import re
 import sys
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 class NginxLogParser:
     """Parser for Nginx access logs in combined format."""
@@ -22,7 +22,25 @@ class NginxLogParser:
             return None
 
         match = self.log_pattern.match(line)
-        return match.groupdict() if match else None
+        if not match:
+            return None
+
+        entry = match.groupdict()
+
+        # Convert status to int
+        try:
+            entry["status"] = int(entry["status"])
+        except (ValueError, KeyError):
+            entry["status"] = 0
+
+        # Convert body_bytes_sent to int (handle "-" as 0)
+        try:
+            bytes_sent = entry.get("body_bytes_sent", "0")
+            entry["body_bytes_sent"] = int(bytes_sent) if bytes_sent != "-" else 0
+        except ValueError:
+            entry["body_bytes_sent"] = 0
+
+        return entry
 
 def main():
     parser = argparse.ArgumentParser(description="Nginx log parser and data enricher")
