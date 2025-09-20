@@ -34,12 +34,15 @@ def main():
     print(f"Will write to {args.out_path}")
     
     # Read lines into a list of dicts
+    log_parser = NginxLogParser()
     records = []
     # Try to read the input file
     try:
         with open(args.in_path, "r", encoding="utf-8") as f:
             for line in f:
-                records.append({"raw_line": line.strip()})
+                entry = log_parser.parse_line(line)
+                if entry:
+                    records.append(entry)
     except FileNotFoundError:
         print(f"Error: Input file not found -> {args.in_path}", file=sys.stderr)
         sys.exit(1)
