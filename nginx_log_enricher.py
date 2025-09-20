@@ -50,10 +50,14 @@ class NginxLogParser:
             entry["method"], entry["path"], entry["protocol"] = "", "", ""
         
         # Parse time_local into a standard format
+        # Keep raw time_local, and add normalized ISO8601 timestamp
         try:
-            entry["time_local"] = datetime.strptime(entry["time_local"], "%d/%b/%Y:%H:%M:%S %z").isoformat()
+            entry["timestamp"] = datetime.strptime(
+                entry["time_local"], "%d/%b/%Y:%H:%M:%S %z"
+            ).isoformat()
         except (ValueError, KeyError):
-            entry["time_local"] = None
+            entry["timestamp"] = None
+
 
         return entry
 
