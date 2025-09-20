@@ -18,6 +18,13 @@ def main():
 
     print("--- End of file content ---")
     
+    # Write records to output file in JSON format
+    with open(args.out_path, "w", encoding="utf-8") as out:
+        json.dump(records, out, indent=2)
+
+    print(f"Processed {len(records)} lines")
+    print(f"Output written to {args.out_path}")
+    
 
 if __name__ == "__main__":
     main()
