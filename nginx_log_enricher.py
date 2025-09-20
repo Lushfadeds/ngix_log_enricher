@@ -39,6 +39,13 @@ class NginxLogParser:
             entry["body_bytes_sent"] = int(bytes_sent) if bytes_sent != "-" else 0
         except ValueError:
             entry["body_bytes_sent"] = 0
+            
+        # Split request into method, path, protocol
+        request_parts = entry.get("request", "").split(" ")
+        if len(request_parts) == 3:
+            entry["method"], entry["path"], entry["protocol"] = request_parts
+        else:
+            entry["method"], entry["path"], entry["protocol"] = "", "", ""
 
         return entry
 
